@@ -4,7 +4,7 @@ namespace SlotsGame
 {
     public class SlotsLogic
     {
-        public static int REEL_START_OFFSET = 5;
+        public static int REEL_LINE_OFFSET = 5;
         public static int PRECISION = 1000;
 
         public static int IncrementSeed(int seed)
@@ -56,7 +56,7 @@ namespace SlotsGame
             slotsData.Score = 0;
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
             {
-                slotsData.ReelOffset[reelIdx] = REEL_START_OFFSET * PRECISION;
+                slotsData.ReelOffset[reelIdx] = 0;
                 slotsData.ReelState[reelIdx] = REEL_STATE.STOPPED;
             }
         }
@@ -84,7 +84,7 @@ namespace SlotsGame
         {
             slotsData.ReelState[reelIdx] = REEL_STATE.STOPPED;
             slotsData.ReelStopTime[reelIdx][slotsData.CurrentRun] = currentTime;
-            setReelOffset(slotsData, slotsBalance, reelIdx, currentTime - slotsData.ReelStartTime[reelIdx][slotsData.CurrentRun]);
+            slotsData.ReelOffset[reelIdx] = GetReelOffset(slotsData, slotsBalance, reelIdx, currentTime - slotsData.ReelStartTime[reelIdx][slotsData.CurrentRun]);
         }
 
         public static void Tick(SlotsData slotsData, SlotsBalance slotsBalance)
@@ -96,12 +96,12 @@ namespace SlotsGame
                 if (slotsData.ReelState[reelIdx] == REEL_STATE.RUNNING)
                 {
                     long runningTime = currentTime - slotsData.ReelStartTime[reelIdx][slotsData.CurrentRun];
-                    setReelOffset(slotsData, slotsBalance, reelIdx, runningTime);
+                    slotsData.ReelOffset[reelIdx] = GetReelOffset(slotsData, slotsBalance, reelIdx, runningTime);
                 }
             }
         }
 
-        private static void setReelOffset(SlotsData slotsData, SlotsBalance slotsBalance, int reelIdx, long runningTime)
+        public static long GetReelOffset(SlotsData slotsData, SlotsBalance slotsBalance, int reelIdx, long runningTime)
         {
             int reelSpeed = slotsBalance.ReelSpeed[reelIdx];
 
@@ -111,20 +111,26 @@ namespace SlotsGame
                 reelSpeed = (reelSpeed * slotsBalance.StartCurve[reelIdx][index]) / PRECISION;
 
             // calculate reel offset based on running time
-            slotsData.ReelOffset[reelIdx] = slotsData.ReelStartOffset[reelIdx][slotsData.CurrentRun] + ((reelSpeed * runningTime) / PRECISION);
+            long reelOffset = slotsData.ReelStartOffset[reelIdx][slotsData.CurrentRun] + ((reelSpeed * runningTime) / PRECISION);
 
             // wrap around
-            if (slotsData.ReelOffset[reelIdx] > (slotsBalance.NumSymbols + REEL_START_OFFSET) * PRECISION)
-                slotsData.ReelOffset[reelIdx] -= slotsBalance.NumSymbols * PRECISION;
+            if (reelOffset > slotsBalance.NumSymbols * PRECISION)
+                reelOffset -= slotsBalance.NumSymbols * PRECISION;
+            return reelOffset;
         }
 
+        public static int GetSymbolIndexForReel(SlotsBalance slotsBalance, long offset)
+        {
+            int symbolIdx = (int)((offset + REEL_LINE_OFFSET * PRECISION + PRECISION / 2) / PRECISION);
+            symbolIdx %= slotsBalance.NumSymbols;
+            return symbolIdx;
+        }
 
         public static void AddScore(SlotsData slotsData, SlotsBalance slotsBalance)
         {
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
             {
-                int sIdx = (int)((slotsData.ReelOffset[reelIdx] + PRECISION / 2) / PRECISION);
-                sIdx %= slotsBalance.NumSymbols;
+                int sIdx = GetSymbolIndexForReel(slotsBalance, slotsData.ReelOffset[reelIdx]);
                 slotsData.Score += (int)slotsBalance.ReelSymbols[reelIdx][sIdx];
             }
         }

@@ -76,6 +76,7 @@ namespace SlotsGame
             {
                 SlotsLogic.AddScore(m_slotsData, m_slotsBalance);
                 SlotsVisual.UpdateScore(m_slotsData);
+                Validate();
             }
         }
 
@@ -87,13 +88,29 @@ namespace SlotsGame
             SlotsLogic.AddScore(m_slotsData, m_slotsBalance);
             SlotsVisual.UpdateScore(m_slotsData);
 
+            Validate();
+        }
+
+        private void Validate()
+        {
+            bool validation = true;
+            string result = "Result: ";
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
             {
-                int sIdx = (int)((m_slotsData.ReelOffset[reelIdx] + SlotsLogic.PRECISION / 2) / SlotsLogic.PRECISION);
-                sIdx %= m_slotsBalance.NumSymbols;
-                Debug.LogFormat("ReelIdx {0} Symbol {1}", reelIdx, m_slotsBalance.ReelSymbols[reelIdx][sIdx].ToString());
+                long offset = m_slotsData.ReelOffset[reelIdx];
+                int sIdx = SlotsLogic.GetSymbolIndexForReel(m_slotsBalance, offset);
+                result += string.Format("{1} ", reelIdx, m_slotsBalance.ReelSymbols[reelIdx][sIdx].ToString());
 
+                // validate offset with running time
+                long runningTime = m_slotsData.ReelStopTime[reelIdx][m_slotsData.CurrentRun] - m_slotsData.ReelStartTime[reelIdx][m_slotsData.CurrentRun];
+                long offset2 = SlotsLogic.GetReelOffset(m_slotsData, m_slotsBalance, reelIdx, runningTime);
+                if (offset != offset2)
+                    validation = false;
             }
+
+            result += "Validation: " + validation.ToString();
+
+            Debug.Log(result);
         }
     }
 }

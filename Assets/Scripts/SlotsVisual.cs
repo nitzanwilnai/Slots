@@ -25,8 +25,6 @@ namespace SlotsGame
         TextMeshProUGUI m_scoreText;
         TextMeshProUGUI m_runsText;
 
-        float BottomOffset = -5.0f;
-
         BottomButtonsInfo m_bottomButtonsInfo = new BottomButtonsInfo();
 
         private void Awake()
@@ -104,11 +102,10 @@ namespace SlotsGame
             for (int sIdx = 0; sIdx < numSymbols; sIdx++)
             {
                 pos.y = -reelOffset + sIdx;
-                while (pos.y < BottomOffset)
+                while (pos.y < -0.5f)
                     pos.y += numSymbols;
                 m_reelSymbols[reelIdx][sIdx].transform.localPosition = pos;
             }
-
         }
 
         public void Hide()
