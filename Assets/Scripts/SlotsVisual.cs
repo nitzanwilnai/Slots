@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace SlotsGame
 {
@@ -20,6 +21,9 @@ namespace SlotsGame
 
         public Symbol SymbolPrefab;
         public GameObject Bar;
+
+        TextMeshProUGUI m_scoreText;
+        TextMeshProUGUI m_runsText;
 
         float BottomOffset = -5.0f;
 
@@ -52,7 +56,7 @@ namespace SlotsGame
             }
         }
 
-        public void Show(GameData gameData, SlotsBalance slotsBalance, GUIRef guiRef)
+        public void Show(SlotsData slotsData, SlotsBalance slotsBalance, GUIRef guiRef)
         {
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
             {
@@ -62,7 +66,7 @@ namespace SlotsGame
                 {
                     m_reelSymbols[reelIdx][sIdx].gameObject.SetActive(true);
                     m_reelSymbols[reelIdx][sIdx].Text.text = slotsBalance.ReelSymbols[reelIdx][sIdx].ToString();
-                    ShowReel(gameData, slotsBalance, reelIdx);
+                    ShowReel(slotsData, slotsBalance, reelIdx);
                 }
                 for (int tileIdx = numSymbols; tileIdx < Constants.MAX_SYMBOLS; tileIdx++)
                     m_reelSymbols[reelIdx][tileIdx].gameObject.SetActive(false);
@@ -85,14 +89,19 @@ namespace SlotsGame
             m_bottomButtonsInfo.StopAllButton.SetActive(false);
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
                 m_bottomButtonsInfo.StopReelButton[reelIdx].interactable = false;
+
+            m_scoreText = guiRef.GetText("Score");
+            m_runsText = guiRef.GetText("Runs");
+            m_scoreText.text = "Score:";
+            m_runsText.text = "Runs:";
         }
 
-        void ShowReel(GameData gameData, SlotsBalance slotsBalance, int reelIdx)
+        void ShowReel(SlotsData slotsData, SlotsBalance slotsBalance, int reelIdx)
         {
-            float reelOffset = gameData.ReelOffset[reelIdx] / (float)SlotsLogic.PRECISION;
+            float reelOffset = slotsData.ReelOffset[reelIdx] / (float)SlotsLogic.PRECISION;
             Vector3 pos = new Vector3(0.0f, reelOffset, 0.0f);
             int numSymbols = slotsBalance.NumSymbols;
-            for (int sIdx = 0; sIdx <numSymbols; sIdx++)
+            for (int sIdx = 0; sIdx < numSymbols; sIdx++)
             {
                 pos.y = -reelOffset + sIdx;
                 while (pos.y < BottomOffset)
@@ -111,16 +120,16 @@ namespace SlotsGame
         }
 
         // Update is called once per frame
-        public void Tick(GameData gameData, SlotsBalance slotsBalance)
+        public void Tick(SlotsData slotsData, SlotsBalance slotsBalance)
         {
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
-            {
-                ShowReel(gameData, slotsBalance, reelIdx);
-            }
+                ShowReel(slotsData, slotsBalance, reelIdx);
         }
 
-        public void StartReels()
+        public void StartReels(SlotsData slotsData)
         {
+            m_runsText.text = "Runs: " + slotsData.CurrentRun;
+
             m_bottomButtonsInfo.StartButton.SetActive(false);
             m_bottomButtonsInfo.StopAllButton.SetActive(true);
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
@@ -135,17 +144,22 @@ namespace SlotsGame
                 m_bottomButtonsInfo.StopReelButton[reelIdx].interactable = false;
         }
 
-        public void StopReel(GameData gameData, int reelIdx)
+        public void StopReel(SlotsData slotsData, int reelIdx, out bool allReelsStopped)
         {
             m_bottomButtonsInfo.StopReelButton[reelIdx].interactable = false;
 
-            bool allReelsStopped = true;
+            allReelsStopped = true;
             for (int i = 0; i < Constants.NUM_REELS; i++)
-                if (gameData.ReelState[i] == REEL_STATE.RUNNING)
+                if (slotsData.ReelState[i] == REEL_STATE.RUNNING)
                     allReelsStopped = false;
 
             m_bottomButtonsInfo.StartButton.SetActive(allReelsStopped);
             m_bottomButtonsInfo.StopAllButton.SetActive(!allReelsStopped);
+        }
+
+        public void UpdateScore(SlotsData slotsData)
+        {
+            m_scoreText.text = "Score: " + slotsData.Score;
         }
     }
 }

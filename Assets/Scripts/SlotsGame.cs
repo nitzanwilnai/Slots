@@ -10,7 +10,7 @@ namespace SlotsGame
     public class SlotsGame : Singleton<SlotsGame>
     {
         public SlotsVisual SlotsVisual;
-        public GameData m_gameData;
+        public SlotsData m_slotsData;
 
         public GameObject UIMainMenu;
         public GameObject UIInGame;
@@ -25,9 +25,9 @@ namespace SlotsGame
         {
             base.Awake();
 
-            m_gameData = new GameData();
+            m_slotsData = new SlotsData();
 
-            SlotsLogic.AllocateGame(m_gameData);
+            SlotsLogic.AllocateGame(m_slotsData);
             m_slotsBalance.LoadBalance(1);
         }
 
@@ -49,33 +49,51 @@ namespace SlotsGame
         void Update()
         {
             if (MenuState == MENU_STATE.IN_GAME)
-                SlotsLogic.Tick(m_gameData, m_slotsBalance);
-                SlotsVisual.Tick(m_gameData, m_slotsBalance);
+                SlotsLogic.Tick(m_slotsData, m_slotsBalance);
+                SlotsVisual.Tick(m_slotsData, m_slotsBalance);
         }
 
         public void StartGame()
         {
-            SlotsLogic.StartGame(m_gameData, m_slotsBalance, ref Seed);
-            SlotsVisual.Show(m_gameData, m_slotsBalance, UIInGame.GetComponent<GUIRef>());
+            SlotsLogic.StartGame(m_slotsData);
+            SlotsVisual.Show(m_slotsData, m_slotsBalance, UIInGame.GetComponent<GUIRef>());
             SetMenuState(MENU_STATE.IN_GAME);
         }
 
         public void ButtonStartReels()
         {
-            SlotsLogic.StartReels(m_gameData);
-            SlotsVisual.StartReels();
+            SlotsLogic.StartReels(m_slotsData);
+            SlotsVisual.StartReels(m_slotsData);
         }
 
         public void ButtonStopReel(int reelIdx)
         {
-            SlotsLogic.StopReel(m_gameData, m_slotsBalance, reelIdx, SlotsLogic.GetCurrentTime());
-            SlotsVisual.StopReel(m_gameData, reelIdx);
+            SlotsLogic.StopReel(m_slotsData, m_slotsBalance, reelIdx, SlotsLogic.GetCurrentTime());
+            bool allReelsStopped;
+            SlotsVisual.StopReel(m_slotsData, reelIdx, out allReelsStopped);
+
+            if (allReelsStopped)
+            {
+                SlotsLogic.AddScore(m_slotsData, m_slotsBalance);
+                SlotsVisual.UpdateScore(m_slotsData);
+            }
         }
 
         public void ButtonStopAllReels()
         {
-            SlotsLogic.StopAllReels(m_gameData, m_slotsBalance, SlotsLogic.GetCurrentTime());
+            SlotsLogic.StopAllReels(m_slotsData, m_slotsBalance, SlotsLogic.GetCurrentTime());
             SlotsVisual.StopAllReels();
+
+            SlotsLogic.AddScore(m_slotsData, m_slotsBalance);
+            SlotsVisual.UpdateScore(m_slotsData);
+
+            for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
+            {
+                int sIdx = (int)((m_slotsData.ReelOffset[reelIdx] + SlotsLogic.PRECISION / 2) / SlotsLogic.PRECISION);
+                sIdx %= m_slotsBalance.NumSymbols;
+                Debug.LogFormat("ReelIdx {0} Symbol {1}", reelIdx, m_slotsBalance.ReelSymbols[reelIdx][sIdx].ToString());
+
+            }
         }
     }
 }

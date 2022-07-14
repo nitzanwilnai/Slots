@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace SlotsGame
 {
@@ -17,7 +18,7 @@ namespace SlotsGame
     public struct GUIRefText
     {
         public string Name;
-        public Text Value;
+        public TextMeshProUGUI Value;
     }
 
     [Serializable]
@@ -68,7 +69,7 @@ namespace SlotsGame
             return null;
         }
 
-        public Text GetText(string name)
+        public TextMeshProUGUI GetText(string name)
         {
             int numObjects = GUIRefTexts.Length;
             for (int i = 0; i < numObjects; i++)

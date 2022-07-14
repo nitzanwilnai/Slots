@@ -1,14 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace SlotsGame
 {
     public enum REEL_STATE { STOPPED, RUNNING };
 
     [Serializable]
-    public class GameData
+    public class SlotsData
     {
         public long[] ReelRunningTime;
 
@@ -22,5 +21,7 @@ namespace SlotsGame
 
         public long[] ReelOffset;
         public REEL_STATE[] ReelState;
+
+        public int Score;
     }
 }
