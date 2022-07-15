@@ -17,14 +17,14 @@ namespace SlotsGame
     {
         public Transform[] ReelTransform;
 
-        Symbol[][] m_reelSymbols;
+        Symbol[][] m_reelSymbols; // our per reel symbol pool
 
-        public Symbol SymbolPrefab;
-        public GameObject Bar;
+        public Symbol SymbolPrefab; // symbol prefab, should come from asset bundle
+        public GameObject Bar; // the red bar, could come from asset bundle
 
+        // references to UI objects we can modify/assign
         TextMeshProUGUI m_scoreText;
         TextMeshProUGUI m_runsText;
-
         BottomButtonsInfo m_bottomButtonsInfo = new BottomButtonsInfo();
 
         private void Awake()
@@ -33,7 +33,7 @@ namespace SlotsGame
             Bar.SetActive(false);
         }
 
-        // Start is called before the first frame update
+        // allocate all the memory needed for showing the visual
         public void Allocate()
         {
             m_bottomButtonsInfo.StopReelButton = new Button[Constants.NUM_REELS];
@@ -54,6 +54,7 @@ namespace SlotsGame
             }
         }
 
+        // show the visual
         public void Show(SlotsData slotsData, SlotsBalance slotsBalance, GUIRef guiRef)
         {
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
@@ -94,6 +95,8 @@ namespace SlotsGame
             m_runsText.text = "Runs:";
         }
 
+        // shows the reel according to data and balance
+        // this function is stateless
         void ShowReel(SlotsData slotsData, SlotsBalance slotsBalance, int reelIdx)
         {
             float reelOffset = slotsData.ReelOffset[reelIdx] / (float)SlotsLogic.PRECISION;
@@ -116,7 +119,7 @@ namespace SlotsGame
             Bar.SetActive(false);
         }
 
-        // Update is called once per frame
+        // called every frame, controlled by SlotsGame
         public void Tick(SlotsData slotsData, SlotsBalance slotsBalance)
         {
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)

@@ -7,26 +7,6 @@ namespace SlotsGame
         public static int REEL_LINE_OFFSET = 5;
         public static int PRECISION = 1000;
 
-        public static int IncrementSeed(int seed)
-        {
-            //AI.Log();
-            return (214013 * seed + 2531011);
-        }
-
-        public static int RandInt(ref int seed)
-        {
-            int value = (seed >> 16) & 0x7FFF;
-            seed = IncrementSeed(seed);
-            return value;
-        }
-
-        public static int RandRange(int min, int max, ref int seed)
-        {
-            int precision = 0x7FFF;
-            int randomValue = RandInt(ref seed);
-            return ((max - min) * (randomValue % precision) / precision) + min;
-        }
-
         public static long GetCurrentTime()
         {
             return DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
@@ -121,6 +101,7 @@ namespace SlotsGame
 
         public static int GetSymbolIndexForReel(SlotsBalance slotsBalance, long offset)
         {
+            // get the symbol index for this offset
             int symbolIdx = (int)((offset + REEL_LINE_OFFSET * PRECISION + PRECISION / 2) / PRECISION);
             symbolIdx %= slotsBalance.NumSymbols;
             return symbolIdx;
@@ -131,7 +112,7 @@ namespace SlotsGame
             for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
             {
                 int sIdx = GetSymbolIndexForReel(slotsBalance, slotsData.ReelOffset[reelIdx]);
-                slotsData.Score += (int)slotsBalance.ReelSymbols[reelIdx][sIdx];
+                slotsData.Score += (int)slotsBalance.ReelSymbols[reelIdx][sIdx];   // I don't know how slot machines calculate scores  ¯\_(ツ)_/¯
             }
         }
     }

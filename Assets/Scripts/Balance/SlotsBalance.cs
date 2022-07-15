@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace SlotsGame
 {
+    // binary representation of SlotsBalanceSO
     public class SlotsBalance
     {
         public int ID;
@@ -35,7 +36,7 @@ namespace SlotsGame
 
                 int numCurveSteps = br.ReadInt16();
                 StartCurve = new int[Constants.NUM_REELS][];
-                for(int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
+                for (int reelIdx = 0; reelIdx < Constants.NUM_REELS; reelIdx++)
                 {
                     StartCurve[reelIdx] = new int[numCurveSteps];
                     for (int i = 0; i < numCurveSteps; i++)

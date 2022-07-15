@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace SlotsGame
 {
+    // converts SlotsBalanceSO to binray data
     public class SlotsBalanceParser : MonoBehaviour
     {
 #if UNITY_EDITOR
@@ -100,7 +101,7 @@ namespace SlotsGame
 
                     int numSymbols = slotsBalanceSO.Reel1Symbols.Length;
                     bw.Write((byte)numSymbols);
-                    for(int i = 0; i < numSymbols; i++)
+                    for (int i = 0; i < numSymbols; i++)
                         bw.Write((byte)slotsBalanceSO.Reel1Symbols[i]);
                     for (int i = 0; i < numSymbols; i++)
                         bw.Write((byte)slotsBalanceSO.Reel2Symbols[i]);

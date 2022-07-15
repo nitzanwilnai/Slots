@@ -6,6 +6,7 @@ namespace SlotsGame
 {
     public enum REEL_STATE { STOPPED, RUNNING };
 
+    // all the data we need to know about player actions in the slot game
     [Serializable]
     public class SlotsData
     {
@@ -16,8 +17,6 @@ namespace SlotsGame
         public long[][] ReelStopTime;
 
         public int CurrentRun;
-
-        public int PrevFrameTime;
 
         public long[] ReelOffset;
         public REEL_STATE[] ReelState;
