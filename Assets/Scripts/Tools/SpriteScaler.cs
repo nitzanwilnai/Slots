@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MergeGame
+namespace SlotsGame
 {
 
     public class SpriteScaler : MonoBehaviour
